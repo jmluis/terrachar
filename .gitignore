@@ -2,6 +2,7 @@
 */.idea/
 *.csproj
 *.sln
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -142,3 +143,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+*.png
+*.json
