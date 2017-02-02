@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
 import Image
-import json
 from player import Player
-from palette import Palette
-import random
 import time
 
 
