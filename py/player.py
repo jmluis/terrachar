@@ -13,9 +13,21 @@ class Player:
     HAIR = 0
     NAME = "NULL"
     SKIN_VARIANT = 0
-
     PALETTE = 0
-
+    HEAD_SLOT = None
+    BODY_SLOT = None
+    LEGS_SLOT = None
+    HAND_ON_SLOT = None
+    HAND_OFF_SLOT = None
+    BACK_SLOT = None
+    FRONT_SLOT = None
+    SHOE_SLOT = None
+    WAIST_SLOT = None
+    WING_SLOT = None
+    SHIELD_SLOT = None
+    NECK_SLOT = None
+    FACE_SLOT = None
+    BALLOON_SLOT = None
     @property
     def GENDER(self):
         return (self.SKIN_VARIANT > 3 and self.SKIN_VARIANT is not 8)
@@ -34,6 +46,22 @@ class Player:
         char.UNDERSHIRT_COLOR = [int(x) for x in parsed['UnderShirtColor'].split(',')]
         char.HAIR = int(parsed['Hair'])
         char.SKIN_VARIANT = int(parsed['SkinVariant'])
+        char.HEAD_SLOT = int(parsed['HeadSlot'])
+        char.BODY_SLOT = int(parsed['BodySlot'])
+        char.LEGS_SLOT = int(parsed['LegsSlot'])
+        char.HAND_ON_SLOT = int(parsed['HandsOnSlot'])
+        char.HAND_OFF_SLOT = int(parsed['HandsOffSlot'])
+        char.BACK_SLOT = int(parsed['BackSlot'])
+        char.FRONT_SLOT = int(parsed['FrontSlot'])
+        char.SHOE_SLOT = int(parsed['ShoeSlot'])
+        char.WAIST_SLOT = int(parsed['WaistSlot'])
+        char.WING_SLOT = int(parsed['WingSlot'])
+        char.SHIELD_SLOT = int(parsed['ShieldSlot'])
+        char.NECK_SLOT = int(parsed['NeckSlot'])
+        char.FACE_SLOT = int(parsed['FaceSlot'])
+        char.BALLOON_SLOT = int(parsed['BalloonSlot'])
+
+
         char.NAME = parsed['Name']
-        char.PALETTE = Palette(char)
+        char.PALETTE = Palette.load_pieces(char)
         return char

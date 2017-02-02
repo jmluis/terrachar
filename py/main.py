@@ -3,21 +3,16 @@
 import Image
 from player import Player
 
-
 def drawCharacter(player, image):
-    image.paste(player.PALETTE.pants, mask=player.PALETTE.pants)
-    image.paste(player.PALETTE.shoes, mask=player.PALETTE.shoes)
-    image.paste(player.PALETTE.shirt, mask=player.PALETTE.shirt)
-    image.paste(player.PALETTE.undershirt, mask=player.PALETTE.undershirt)
-    image.paste(player.PALETTE.hands, mask=player.PALETTE.hands)
-    image.paste(player.PALETTE.head, mask=player.PALETTE.head)
-    image.paste(player.PALETTE.eyes, mask=player.PALETTE.eyes)
-    image.paste(player.PALETTE.eyeWhites, mask=player.PALETTE.eyeWhites)
-    image.paste(player.PALETTE.hair, mask=player.PALETTE.hair)
+    for piece in player.PALETTE:
+        if piece is None:
+            continue
+        image.paste(im=piece, mask=piece)
+
     return image
 
 def main():
-    pl = Player.loadCharacter('fdgh')
+    pl = Player.loadCharacter('0')
 
     char_img = Image.new('RGBA', (40, 55), (255, 255, 255, 255))
     char_img = drawCharacter(pl, char_img)
