@@ -1,7 +1,7 @@
 import Image
 
 CLIP_RECT = (0, 0, 40, 55)
-R, G, B = 0, 1, 2
+R, G, B, A = 0, 1, 2, 3
 
 class PIECE_IDS(object):
     #BASE BODY (Player/ SKINVAR / PIECEID)
@@ -116,19 +116,23 @@ class Palette:
                 try:
                     img = Image.open("data/Player/0/{0}.png".format(id)).crop(CLIP_RECT)
                 except IOError as e:
-                    #print 'Something didn\'t really work out _fetch_piece\n' + str(e)
+                    print 'Something didn\'t really work out _fetch_piece\n' + str(e)
                     return None
         return img
     @staticmethod
     def fetch_piece(skin_variant, id, color):
-        return Palette.colorImage(img=Palette._fetch_piece(skin_variant, id), color=color)
+        return Palette.color_image(img=Palette._fetch_piece(skin_variant, id), color=color)
 
 
     @staticmethod
     def fetch_hair(id, hat, color):
-        path = "data/Player/Hair{0}/{1}.png".format("Alt" if hat else "", (id + 1))
-        hair = Image.open(path).crop(CLIP_RECT)
-        hair = Palette.colorImage(hair, color)
+        try:
+            path = "data/Player/Hair{0}/{1}.png".format("Alt" if hat else "", (id + 1))
+            hair = Image.open(path).crop(CLIP_RECT)
+            hair = Palette.color_image(hair, color)
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_hair\n' + str(e)
+            return None
         return hair
 
     @staticmethod
@@ -144,51 +148,57 @@ class Palette:
                 armor = Image.open("data/Armor/Arm/{0}.png".format(slot)).crop(CLIP_RECT)
             else:
                 return None
-        except IOError:
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_armor\n' + str(e)
             return None
 
         return armor
 
     @staticmethod
     def fetch_accessory(id, slot):
-        if id is PIECE_IDS.SLOT_HANDON: # cool
-            acc = Image.open("data/Acc/HandsOn/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_HANDOFF: # cool
-            acc = Image.open("data/Acc/HandsOff/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_BACK: # cool
-            acc = Image.open("data/Acc/Back/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_FRONT: # cool
-            acc = Image.open("data/Acc/Front/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_SHOE: # cool
-            acc = Image.open("data/Acc/Shoes/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_WAIST: # ok 40/1064
-            acc = Image.open("data/Acc/Waist/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_SHIELD: # cool
-            acc = Image.open("data/Acc/Shield/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_NECK: # cool
-            acc = Image.open("data/Acc/Neck/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_FACE: # cool
-            acc = Image.open("data/Acc/Face/{0}.png".format(slot)).crop(CLIP_RECT)
-        #elif id is PIECE_IDS.SLOT_BALLOON: # no
-            #acc = Image.open("data/Acc/Balloon/{0}.png".format(slot)).crop((0,0,52,56))
-        #elif id is PIECE_IDS.SLOT_WING: # no
-            #acc = Image.open("data/Wings/{0}.png".format(slot)).crop(CLIP_RECT)
-        else:
+        try:
+            if id is PIECE_IDS.SLOT_HANDON: # cool
+                acc = Image.open("data/Acc/HandsOn/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_HANDOFF: # cool
+                acc = Image.open("data/Acc/HandsOff/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_BACK: # cool
+                acc = Image.open("data/Acc/Back/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_FRONT: # cool
+                acc = Image.open("data/Acc/Front/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_SHOE: # cool
+                acc = Image.open("data/Acc/Shoes/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_WAIST: # ok 40/1064
+                acc = Image.open("data/Acc/Waist/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_SHIELD: # cool
+                acc = Image.open("data/Acc/Shield/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_NECK: # cool
+                acc = Image.open("data/Acc/Neck/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_FACE: # cool
+                acc = Image.open("data/Acc/Face/{0}.png".format(slot)).crop(CLIP_RECT)
+            #elif id is PIECE_IDS.SLOT_BALLOON: # no
+                #acc = Image.open("data/Acc/Balloon/{0}.png".format(slot)).crop((0,0,52,56)? [TODO])
+            #elif id is PIECE_IDS.SLOT_WING: # no
+                #acc = Image.open("data/Wings/{0}.png".format(slot)).crop([TODO])
+            else:
+                return None
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_accessory\n' + str(e)
             return None
-
         return acc
 
     @staticmethod
-    def getItem(id, color):
-        item = Image.open("data/Item/{0}.png".format(id))
-
-        if not color:
-            return item
-        else:
-            return Palette.colorImage(item, color)
+    def fetch_item(id, color):
+        try:
+            item = Image.open("data/Item/{0}.png".format(id))
+            if not color:
+                return item
+            else:
+                return Palette.color_image(item, color)
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_item\n' + str(e)
 
     @staticmethod
-    def colorImage(img, color):
+    def color_image(img, color):
         if img is None:
             return None
         r, g, b, a = img.split()
