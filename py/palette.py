@@ -133,15 +133,18 @@ class Palette:
 
     @staticmethod
     def fetch_armor(gender, id, slot):
-        if id is PIECE_IDS.SLOT_HEAD:
-            armor = Image.open("data/Armor/Head/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_BODY:
-            armor = Image.open("data/{0}/Body/{1}.png".format("Female" if gender else "Armor", slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_LEGS:
-            armor = Image.open("data/Armor/Legs/{0}.png".format(slot)).crop(CLIP_RECT)
-        elif id is PIECE_IDS.SLOT_ARMS:
-            armor = Image.open("data/Armor/Arm/{0}.png".format(slot)).crop(CLIP_RECT)
-        else:
+        try:
+            if id is PIECE_IDS.SLOT_HEAD:
+                armor = Image.open("data/Armor/Head/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_BODY:
+                armor = Image.open("data/{0}/Body/{1}.png".format("Female" if gender else "Armor", slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_LEGS:
+                armor = Image.open("data/Armor/Legs/{0}.png".format(slot)).crop(CLIP_RECT)
+            elif id is PIECE_IDS.SLOT_ARMS:
+                armor = Image.open("data/Armor/Arm/{0}.png".format(slot)).crop(CLIP_RECT)
+            else:
+                return None
+        except IOError:
             return None
 
         return armor
