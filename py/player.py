@@ -1,4 +1,3 @@
-import json
 from palette import Palette
 import random
 
@@ -38,19 +37,19 @@ class Player:
         self.PALETTE = Palette.load_pieces(self)
 
     def randomize(self):
-        self.NAME = "ID" + str(random.randint(0,9999))
-        self.SKIN_VARIANT = random.randint(0,9)
-        self.HAIR = random.randint(0,134)
-        for i in range (0,2):
-            self.EYE_COLOR[i] =  random.randint(0,255)
-        for i in range (0,2):
-            self.SKIN_COLOR[i] =  random.randint(0,255)
-        for i in range (0,2):
-            self.PANTS_COLOR[i] =  random.randint(0,255)
-        for i in range (0,2):
-            self.SHIRT_COLOR[i] =  random.randint(0,255)
-        for i in range (0,2):
-            self.HAIR_COLOR[i] =  random.randint(0,255)
+        self.NAME = "ID" + str(random.randint(0, 9999))
+        self.SKIN_VARIANT = random.randint(0, 9)
+        self.HAIR = random.randint(0, 134)
+        for i in range(0, 2):
+            self.EYE_COLOR[i] = random.randint(0, 255)
+        for i in range(0, 2):
+            self.SKIN_COLOR[i] = random.randint(0, 255)
+        for i in range(0, 2):
+            self.PANTS_COLOR[i] = random.randint(0, 255)
+        for i in range(0, 2):
+            self.SHIRT_COLOR[i] = random.randint(0, 255)
+        for i in range(0, 2):
+            self.HAIR_COLOR[i] = random.randint(0, 255)
         for i in range(0, 2):
             self.UNDERSHIRT_COLOR[i] = random.randint(0, 255)
         for i in range(0, 2):
@@ -71,9 +70,7 @@ class Player:
         # self.BALLOON_SLOT = random.randint(1,17)
         self.load_palette()
 
-    def loadData(self, _json):
-        parsed = json.loads(_json)
-
+    def load_data(self, parsed):
         self.EYE_COLOR = [int(x) for x in parsed['EyeColor']]
         self.HAIR_COLOR = [int(x) for x in parsed['HairColor']]
         self.PANTS_COLOR = [int(x) for x in parsed['PantsColor']]

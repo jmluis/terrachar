@@ -6,6 +6,7 @@ using TShockAPI;
 using Newtonsoft.Json;
 using Rests;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace cTerrachar
 {
@@ -144,7 +145,7 @@ namespace cTerrachar
             return new RestObject()
             {
                 {"count", relevantPlayers.Count },
-                {"players", relevantPlayers }
+                { "players", relevantPlayers}
             };
         }
 
