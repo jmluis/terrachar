@@ -26,7 +26,10 @@ def hello():
 def get_player(name):
     player = fetch_player(name)
     if player is None:
-        player = cache_player(name=name, info=fetch_player_data(name))
+        parsed = fetch_player_data(name)
+        if 'error' in parsed:
+            return json.jsonify(parsed)
+        player = cache_player(name=name, info=parsed)
     return send_file(BytesIO(base64.b64decode(player)), mimetype='image/png')
 
 
@@ -38,7 +41,6 @@ def get_actives():
         player_data = parsed['players'][i]
         player = cache_player(player_data['Name'], player_data)
         players[player_data['Name']] = player
-        # Image.open(player).save("{0}.png".format(player_data['Name']), "PNG", quality=100) Testing
     return json.jsonify(count=len(players), players=players)
 
 
@@ -56,8 +58,10 @@ def fetch_actives():
 
 def fetch_player_data(name):
     req = requests.get(BASE_REST + 'player', params={'name': name})
-    player_data = json.loads(req.text)['player']
-    return player_data
+    parsed = json.loads(req.text)
+    if 'error' in parsed:
+        return parsed
+    return parsed['player']
 
 
 def fetch_player(name):

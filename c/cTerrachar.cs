@@ -3,16 +3,24 @@ using System.Reflection;
 using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
+using TShockAPI.DB;
 using Newtonsoft.Json;
 using Rests;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
 
 namespace cTerrachar
 {
+    public struct DBItem
+    {
+        public int PieceID;
+        public int Slot;
+    }
     public class RelevantInfo
     {
         public string Name { get; set; }
+        public int ID { get; set; }
 
         public int Hair { get; set; }
         public int SkinVariant;
@@ -84,11 +92,81 @@ namespace cTerrachar
             return relevantPlr;
         }
 
+        public static RelevantInfo GetRelevance(QueryResult reader)
+        {
+            RelevantInfo relevantPlr = new RelevantInfo();
+            Color eyeColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("eyecolor"));
+            Color hairColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("haircolor"));
+            Color pantsColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("pantscolor"));
+            Color shirtColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("shirtcolor"));
+            Color shoeColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("shoecolor"));
+            Color skinColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("skincolor"));
+            Color underShirtColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("undershirtcolor"));
+            relevantPlr.EyeColor = new int[] { eyeColor.R, eyeColor.G, eyeColor.B };
+            relevantPlr.HairColor = new int[] { hairColor.R, hairColor.G, hairColor.B };
+            relevantPlr.PantsColor = new int[] { pantsColor.R, pantsColor.G, pantsColor.B };
+            relevantPlr.ShirtColor = new int[] { shirtColor.R, shirtColor.G, shirtColor.B };
+            relevantPlr.ShoeColor = new int[] { shoeColor.R, shoeColor.G, shoeColor.B };
+            relevantPlr.SkinColor = new int[] { skinColor.R, skinColor.G, skinColor.B };
+            relevantPlr.UnderShirtColor = new int[] { underShirtColor.R, underShirtColor.G, underShirtColor.B };
+            relevantPlr.SkinVariant = reader.Get<Int32>("skinvariant");
+            relevantPlr.Hair = reader.Get<Int32>("hair");
+
+            string[] inventory_entries = reader.Get<String>("inventory").Split('~');
+            NetItem parsed;
+            Item item;
+            // Because vanity items are stored after regular, if one is wearing vanity it will replace the former
+            for (int i = 59; i <= 79; i++)
+            {
+                parsed = NetItem.Parse(inventory_entries[i]);
+                if (parsed.NetId < 1)
+                    continue;
+                item = new Item();
+                item.SetDefaults(parsed.NetId);
+                // Head
+                if ((i == 59 || i == 69) && item.headSlot > 0)
+                    relevantPlr.HeadSlot = item.headSlot;
+                // Body
+                else if ((i == 60 || i == 70) && item.bodySlot > 0)
+                    relevantPlr.BodySlot = item.bodySlot;
+                // Legs
+                else if ((i == 61 || i == 71) && item.legSlot > 0)
+                    relevantPlr.LegsSlot = item.legSlot;
+                // Accessories
+                else if ((i >= 62 && i <= 68) || i >= 72 && i <= 78)
+                {
+                    if (item.handOnSlot > 0)
+                        relevantPlr.HandsOnSlot = item.handOnSlot;
+                    else if (item.handOffSlot > 0)
+                        relevantPlr.HandsOffSlot = item.handOffSlot;
+                    else if (item.backSlot > 0)
+                        relevantPlr.BackSlot = item.backSlot;
+                    else if (item.frontSlot > 0)
+                        relevantPlr.FrontSlot = item.frontSlot;
+                    else if (item.shoeSlot > 0)
+                        relevantPlr.ShoeSlot = item.shoeSlot;
+                    else if (item.waistSlot > 0)
+                        relevantPlr.WaistSlot = item.waistSlot;
+                    else if (item.wingSlot > 0)
+                        relevantPlr.WingSlot = item.wingSlot;
+                    else if (item.shieldSlot > 0)
+                        relevantPlr.ShieldSlot = item.shieldSlot;
+                    else if (item.neckSlot > 0)
+                        relevantPlr.NeckSlot = item.neckSlot;
+                    else if (item.faceSlot > 0)
+                        relevantPlr.FaceSlot = item.faceSlot;
+                    else if (item.balloonSlot > 0)
+                        relevantPlr.BalloonSlot = item.balloonSlot;
+                }
+            }
+            return relevantPlr;
+        }
+
     }
     [ApiVersion(2, 0)]
     public class cTerrachar : TerrariaPlugin
     {
-        public override string Author => "ChbShoot";
+        public override string Author => "Shoot";
         public override string Description => "Generate player avatars";
         public override string Name => "cTerrachar";
         public override Version Version => Assembly.GetExecutingAssembly().GetName().Version;
@@ -110,25 +188,53 @@ namespace cTerrachar
         {
             string strName = args.Parameters["name"];
             if (string.IsNullOrEmpty(strName))
-            {
                 return new RestObject()
                 {
                     { "error" , "expected player name in 'name'" }
                 };
-            }
 
-            List<TSPlayer> plrs = TShock.Utils.FindPlayer(strName);
-            if (plrs.Count != 1)
-            {
+            User usr = TShock.Users.GetUserByName(strName);
+            if (usr == null)
                 return new RestObject()
                 {
-                    { "error", string.Format("{0} players with name '{1}'", plrs.Count, strName) }
+                    { "error", "player not found" }
                 };
+            List<TSPlayer> plrs = TShock.Utils.FindPlayer(strName);
+            // Player is online, no need to fetch from DB
+            if (plrs.Count == 1)
+                return new RestObject() { { "player", RelevantInfo.GetRelevance(plrs[0].TPlayer) } };
+            try
+            {
+                // Fetch from DB
+                using (var reader = TShock.DB.QueryReader("SELECT * FROM tsCharacter where account =@0", usr.ID))
+                {
+                    if (reader.Read())
+                    {
+                        RelevantInfo plr;
+                        foreach (var player in TShock.Players.Where(p => null != p && p.User.Name == usr.Name))
+                        {
+                            // Some reason we didn't get the idea, lets use the real player if they're online
+                            plr = RelevantInfo.GetRelevance(player.TPlayer);
+                            plr.Name = usr.Name;
+                            plr.ID = usr.ID;
+                            return new RestObject() { { "player", plr } };
+                        }
+                        // Load from DB
+                        plr = RelevantInfo.GetRelevance(reader);
+                        plr.Name = usr.Name;
+                        plr.ID = usr.ID;
+                        return new RestObject() { { "player", plr } };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new RestObject() { { "error", ex.Message } };
             }
             return new RestObject()
-            {
-                { "player", RelevantInfo.GetRelevance(plrs[0].TPlayer) }
-            };
+                {
+                    { "error", "player not found" }
+                };
         }
 
         private object getPlayers(RestRequestArgs args)
@@ -144,7 +250,7 @@ namespace cTerrachar
             }
             return new RestObject()
             {
-                {"count", relevantPlayers.Count },
+                { "count", relevantPlayers.Count },
                 { "players", relevantPlayers}
             };
         }

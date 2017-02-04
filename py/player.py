@@ -1,5 +1,4 @@
 from palette import Palette
-import random
 
 
 class Player:
@@ -35,40 +34,6 @@ class Player:
 
     def load_palette(self):
         self.PALETTE = Palette.load_pieces(self)
-
-    def randomize(self):
-        self.NAME = "ID" + str(random.randint(0, 9999))
-        self.SKIN_VARIANT = random.randint(0, 9)
-        self.HAIR = random.randint(0, 134)
-        for i in range(0, 2):
-            self.EYE_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.SKIN_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.PANTS_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.SHIRT_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.HAIR_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.UNDERSHIRT_COLOR[i] = random.randint(0, 255)
-        for i in range(0, 2):
-            self.SHOE_COLOR[i] = random.randint(0, 255)
-        self.HEAD_SLOT = random.randint(1, 213)
-        self.BODY_SLOT = random.randint(1, 207)
-        self.LEGS_SLOT = random.randint(1, 156)
-        # self.HAND_ON_SLOT = random.randint(1,19)
-        # self.HAND_OFF_SLOT = random.randint(1,11)
-        # self.BACK_SLOT = random.randint(1,13)
-        # self.FRONT_SLOT = random.randint(1,4)
-        self.SHOE_SLOT = random.randint(1, 17)
-        # self.WAIST_SLOT = random.randint(1,12)
-        # self.WING_SLOT = random.randint(1,37)
-        # self.SHIELD_SLOT = random.randint(1,6)
-        # self.NECK_SLOT = random.randint(1,9)
-        # self.FACE_SLOT = random.randint(1,8)
-        # self.BALLOON_SLOT = random.randint(1,17)
-        self.load_palette()
 
     def load_data(self, parsed):
         self.EYE_COLOR = [int(x) for x in parsed['EyeColor']]
