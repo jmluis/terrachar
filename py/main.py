@@ -1,19 +1,26 @@
 #!/usr/bin/env python
-import Image
-from player import Player
-
-from StringIO import StringIO
 import base64
+import logging.handlers
+from StringIO import StringIO
 from io import BytesIO
-from flask import json
-import requests
-from flask import Flask
-from flask import send_file
-from werkzeug.contrib.cache import SimpleCache
+from logging import handlers
 
-BASE_REST = "http://localhost:7878/cterrachar/"
+import requests
+from PIL import Image, ImageFilter
+from flask import Flask, send_file, Response, json
+from werkzeug.contrib.cache import SimpleCache  # change to memcached later
+
+import player
 
 app = Flask(__name__)
+
+formatter = logging.Formatter("[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s")
+handler = handlers.RotatingFileHandler('pyterrachar.log', maxBytes=100000, backupCount=5)
+handler.setLevel(logging.WARNING)
+handler.setFormatter(formatter)
+app.logger.addHandler(handler)
+app.config.from_object('PYTERRACHAR_SETTINGS')
+
 cache = SimpleCache()
 
 
@@ -27,8 +34,8 @@ def get_player(name):
     player = fetch_player(name)
     if player is None:
         parsed = fetch_player_data(name)
-        if 'error' in parsed:
-            return json.jsonify(parsed)
+        if isinstance(parsed, Response):
+            return parsed
         player = cache_player(name=name, info=parsed)
     return send_file(BytesIO(base64.b64decode(player)), mimetype='image/png')
 
@@ -36,6 +43,8 @@ def get_player(name):
 @app.route('/active_players')
 def get_actives():
     parsed = fetch_actives()
+    if isinstance(parsed, Response):
+        return parsed
     players = {}
     for i in range(0, parsed['count']):
         player_data = parsed['players'][i]
@@ -43,24 +52,40 @@ def get_actives():
         players[player_data['Name']] = player
     return json.jsonify(count=len(players), players=players)
 
+if __name__ == '__main__':
+    app.run()
 
 def make_player(info):
-    char = Player()
+    char = player.Player()
     char.load_data(info)
     return char
 
 
 def fetch_actives():
-    req = requests.get(BASE_REST + 'active_players')
-    parsed = json.loads(req.text)
+    try:
+        req = requests.get(app.config['BASE_REST'] + 'active_players')
+        parsed = json.loads(req.text)
+    except requests.RequestException:
+        return json.jsonify({'error': 'could not connect to server'})
+    except ValueError as e:
+        app.logger.error('IOError fetch_actives ' + e.message)
+        return json.jsonify({'error': 'value error in json'})
+    if 'error' in parsed:
+        return json.jsonify(parsed)
     return parsed
 
 
 def fetch_player_data(name):
-    req = requests.get(BASE_REST + 'player', params={'name': name})
-    parsed = json.loads(req.text)
+    try:
+        req = requests.get(app.config['BASE_REST'] + 'player', params={'name': name})
+        parsed = json.loads(req.text)
+    except requests.RequestException:
+        return json.jsonify({'error': 'could not connect to server'})
+    except ValueError as e:
+        app.logger.error('IOError fetch_player_data ' + e.message)
+        return json.jsonify({'error': 'value error in json'})
     if 'error' in parsed:
-        return parsed
+        return json.jsonify(parsed)
     return parsed['player']
 
 
@@ -77,6 +102,7 @@ def cache_player(name, info):
 
 def to_base64(img):
     imgio = StringIO()
+    img = img.filter(ImageFilter.BLUR)
     img.save(imgio, 'PNG', quality=100)
     imgio.seek(0)
     b64 = base64.b64encode(imgio.getvalue())
