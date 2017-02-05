@@ -1,47 +1,16 @@
 #!/usr/bin/env python
 import Image
 from player import Player
-
 from StringIO import StringIO
 import base64
-from io import BytesIO
 from flask import json
 import requests
-from flask import Flask
-from flask import send_file
 from werkzeug.contrib.cache import SimpleCache
 
 BASE_REST = "http://localhost:7878/cterrachar/"
 
-app = Flask(__name__)
+
 cache = SimpleCache()
-
-
-@app.route('/')
-def hello():
-    return "nothing to see here"
-
-
-@app.route('/get_player/<name>')
-def get_player(name):
-    player = fetch_player(name)
-    if player is None:
-        parsed = fetch_player_data(name)
-        if 'error' in parsed:
-            return json.jsonify(parsed)
-        player = cache_player(name=name, info=parsed)
-    return send_file(BytesIO(base64.b64decode(player)), mimetype='image/png')
-
-
-@app.route('/active_players')
-def get_actives():
-    parsed = fetch_actives()
-    players = {}
-    for i in range(0, parsed['count']):
-        player_data = parsed['players'][i]
-        player = cache_player(player_data['Name'], player_data)
-        players[player_data['Name']] = player
-    return json.jsonify(count=len(players), players=players)
 
 
 def make_player(info):
