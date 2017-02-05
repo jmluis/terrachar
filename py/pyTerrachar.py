@@ -6,6 +6,7 @@ import base64
 from flask import json
 import requests
 from werkzeug.contrib.cache import SimpleCache
+import flask_app
 
 BASE_REST = "http://localhost:7878/cterrachar/"
 
@@ -20,16 +21,30 @@ def make_player(info):
 
 
 def fetch_actives():
-    req = requests.get(BASE_REST + 'active_players')
-    parsed = json.loads(req.text)
+    try:
+        req = requests.get(flask_app.BASE_REST + 'active_players')
+        parsed = json.loads(req.text)
+    except requests.RequestException:
+        return json.jsonify({'error': 'could not connect to server'})
+    except ValueError as e:
+        flask_app.app.logger.error('IOError fetch_actives ' + e.message)
+        return json.jsonify({'error': 'value error in json'})
+    if 'error' in parsed:
+        return json.jsonify(parsed)
     return parsed
 
 
 def fetch_player_data(name):
-    req = requests.get(BASE_REST + 'player', params={'name': name})
-    parsed = json.loads(req.text)
+    try:
+        req = requests.get(flask_app.BASE_REST + 'player', params={'name': name})
+        parsed = json.loads(req.text)
+    except requests.RequestException:
+        return json.jsonify({'error': 'could not connect to server'})
+    except ValueError as e:
+        flask_app.app.logger.error('IOError fetch_player_data ' + e.message)
+        return json.jsonify({'error': 'value error in json'})
     if 'error' in parsed:
-        return parsed
+        return json.jsonify(parsed)
     return parsed['player']
 
 
