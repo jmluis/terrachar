@@ -1,5 +1,4 @@
-from PIL import Image
-from main import app
+import Image
 
 CLIP_RECT = (0, 0, 40, 55)
 R, G, B, A = 0, 1, 2, 3
@@ -83,7 +82,7 @@ class Palette:
             elif (i is PIECE_IDS.SLOT_HANDON and (player.HAND_ON_SLOT is not None and player.HAND_ON_SLOT is not -1)):
                 img = Palette.fetch_accessory(id=i, slot=player.HAND_ON_SLOT)
             elif (i is PIECE_IDS.SLOT_HANDOFF and (
-                            player.HAND_OFF_SLOT is not None and player.HAND_OFF_SLOT is not -1)):
+                    player.HAND_OFF_SLOT is not None and player.HAND_OFF_SLOT is not -1)):
                 img = Palette.fetch_accessory(id=i, slot=player.HAND_OFF_SLOT)
             elif (i is PIECE_IDS.SLOT_BACK and (player.BACK_SLOT is not None and player.BACK_SLOT is not -1)):
                 img = Palette.fetch_accessory(id=i, slot=player.BACK_SLOT)
@@ -112,19 +111,16 @@ class Palette:
         try:
             img = Image.open("data/Player/{0}/{1}.png".format(skin_variant, id)).crop(CLIP_RECT)
         # lets grab the general gender one
-        except IOError:
+        except IOError as e:
             try:
                 img = Image.open("data/Player/{0}/{1}.png".format(
                     '4' if (skin_variant > 3 and skin_variant is not 8) else '0', id)).crop(CLIP_RECT)
             # well if that didn't have it either..
-            except IOError:
+            except IOError as e:
                 try:
-                    # grab regular male skinvariant 0 asset
                     img = Image.open("data/Player/0/{0}.png".format(id)).crop(CLIP_RECT)
-                except IOError:
-                    # not having an image here is fairly regular
-                    if (id != PIECE_IDS.ACCESSORIES_1 and id != PIECE_IDS.ACCESSORIES_2):
-                        app.logger.warning('IOError _fetch_piece(%d : %d)', skin_variant, id)
+                except IOError as e:
+                    print 'Something didn\'t really work out _fetch_piece\n' + str(e)
                     return None
         return img
 
@@ -138,8 +134,8 @@ class Palette:
             path = "data/Player/Hair{0}/{1}.png".format("Alt" if hat else "", (id + 1))
             hair = Image.open(path).crop(CLIP_RECT)
             hair = Palette.color_image(hair, color)
-        except IOError:
-            app.logger.warning('IOError fetch_hair (%d)', id)
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_hair\n' + str(e)
             return None
         return hair
 
@@ -157,8 +153,8 @@ class Palette:
                 armor = Image.open("data/Armor/Arm/{0}.png".format(slot)).crop(CLIP_RECT)
             else:
                 return None
-        except IOError:
-            app.logger.warning('IOError fetch_armor (%d : %d : %d)', gender, id, slot)
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_armor\n' + str(e)
             return None
 
         return armor
@@ -190,8 +186,8 @@ class Palette:
                 # acc = Image.open("data/Wings/{0}.png".format(slot)).crop([TODO])
             else:
                 return None
-        except IOError:
-            app.logger.warning('IOError fetch_accessory (%d : %d)', id, slot)
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_accessory\n' + str(e)
             return None
         return acc
 
@@ -203,9 +199,8 @@ class Palette:
                 return item
             else:
                 return Palette.color_image(item, color)
-        except IOError:
-            app.logger.warning('IOError fetch_item (%d : %d)', id)
-            return None
+        except IOError as e:
+            print 'Something didn\'t really work out fetch_item\n' + str(e)
 
     @staticmethod
     def color_image(img, color):
