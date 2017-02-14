@@ -74,7 +74,7 @@ namespace cTerrachar
             relevantPlr.UnderShirtColor = new int[] { player.underShirtColor.R, player.underShirtColor.G, player.underShirtColor.B };
             relevantPlr.SkinVariant = player.skinVariant;
             relevantPlr.Hair = player.hair;
-            relevantPlr.HeadSlot = (player.head < 1) ? (int?)null : player.head;
+            relevantPlr.HeadSlot = player.head < 1 ? (int?)null : player.head;
             relevantPlr.BodySlot = player.body < 1 ? (int?)null : player.body;
             relevantPlr.LegsSlot = player.legs < 1 ? (int?)null : player.legs;
             relevantPlr.HandsOnSlot = player.handon < 1 ? (int?)null : player.handon;
@@ -88,12 +88,15 @@ namespace cTerrachar
             relevantPlr.NeckSlot = player.neck < 1 ? (int?)null : player.neck;
             relevantPlr.FaceSlot = player.face < 1 ? (int?)null : player.face;
             relevantPlr.BalloonSlot = player.balloon < 1 ? (int?)null : player.balloon;
+
             relevantPlr.Name = player.name;
             return relevantPlr;
         }
 
         public static RelevantInfo GetRelevance(QueryResult reader)
         {
+
+            bool[] hiddens = new bool[20];
             RelevantInfo relevantPlr = new RelevantInfo();
             Color eyeColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("eyecolor"));
             Color hairColor = (Color)TShock.Utils.DecodeColor(reader.Get<Int32>("haircolor"));
@@ -112,12 +115,20 @@ namespace cTerrachar
             relevantPlr.SkinVariant = reader.Get<Int32>("skinvariant");
             relevantPlr.Hair = reader.Get<Int32>("hair");
 
+            for (int i = 0; i < 20; i++)
+                if (i < 10)
+                    hiddens[i] = (reader.Get<Int32>("hideVisuals") & 1 << i) != 0;
+                else
+                    hiddens[i] = false;
+
             string[] inventory_entries = reader.Get<String>("inventory").Split('~');
             NetItem parsed;
             Item item;
             // Because vanity items are stored after regular, if one is wearing vanity it will replace the former
-            for (int i = 59; i <= 79; i++)
+            int not_weird = 0;
+            for (int i = 59; i < 79; i++)
             {
+                not_weird = i - 59;
                 parsed = NetItem.Parse(inventory_entries[i]);
                 if (parsed.NetId < 1)
                     continue;
@@ -133,14 +144,17 @@ namespace cTerrachar
                 else if ((i == 61 || i == 71) && item.legSlot > 0)
                     relevantPlr.LegsSlot = item.legSlot;
                 // Accessories
-                else if ((i >= 62 && i <= 68) || i >= 72 && i <= 78)
+                else if (((i >= 62 && i <= 68) && !hiddens[not_weird]) || i >= 72 && i <= 78)
                 {
                     if (item.handOnSlot > 0)
                         relevantPlr.HandsOnSlot = item.handOnSlot;
                     else if (item.handOffSlot > 0)
                         relevantPlr.HandsOffSlot = item.handOffSlot;
                     else if (item.backSlot > 0)
+                    {
                         relevantPlr.BackSlot = item.backSlot;
+                        relevantPlr.FrontSlot = null;
+                    }
                     else if (item.frontSlot > 0)
                         relevantPlr.FrontSlot = item.frontSlot;
                     else if (item.shoeSlot > 0)
@@ -159,6 +173,32 @@ namespace cTerrachar
                         relevantPlr.BalloonSlot = item.balloonSlot;
                 }
             }
+
+
+            // Robes and set pieces that stretch
+            bool wearsRobe = false;
+            int news = Player.SetMatch(1, relevantPlr.BodySlot.HasValue ? relevantPlr.BodySlot.Value : 0, Terraria.ID.PlayerVariantID.Sets.Male[relevantPlr.SkinVariant], ref wearsRobe);
+            if (news != -1)
+                relevantPlr.LegsSlot = news;
+            news = Player.SetMatch(2, relevantPlr.LegsSlot.HasValue ? relevantPlr.LegsSlot.Value : 0, Terraria.ID.PlayerVariantID.Sets.Male[relevantPlr.SkinVariant], ref wearsRobe);
+            if (news != -1)
+                relevantPlr.LegsSlot = news;
+            news = Player.SetMatch(0, relevantPlr.HeadSlot.HasValue ? relevantPlr.HeadSlot.Value : 0, Terraria.ID.PlayerVariantID.Sets.Male[relevantPlr.SkinVariant], ref wearsRobe);
+            if (news != -1)
+                relevantPlr.HeadSlot = news;
+
+            // Conditionals
+            if (relevantPlr.WingSlot.HasValue)
+            {
+                relevantPlr.BackSlot = null;
+                relevantPlr.FrontSlot = null;
+            }
+
+            if (relevantPlr.HeadSlot.HasValue)
+            {
+                relevantPlr.FaceSlot = relevantPlr.FaceSlot.Value == 7 ? 7 : (int?)null;
+            }
+
             return relevantPlr;
         }
 
