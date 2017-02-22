@@ -49,65 +49,189 @@ class PIECE_IDS(object):
 
 class Palette:
     @staticmethod
-    def load_pieces(player):
-        PIECES = [None] * 35
-        img = None
-        for i in range(0, 35):
-            if (i is PIECE_IDS.HEAD or i is PIECE_IDS.FULL_BOD or i is PIECE_IDS.HANDS or i is PIECE_IDS.FULL_ARM or
-                        i is PIECE_IDS.ONE_HAND or i is PIECE_IDS.LEGS):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.SKIN_COLOR)
-            elif (i is PIECE_IDS.EYES):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.EYE_COLOR)
-            elif (i is PIECE_IDS.EYE_WHITES):
-                img = Palette._fetch_piece(skin_variant=player.SKIN_VARIANT, id=i)
-            elif (i is PIECE_IDS.UNDERSHIRT or i is PIECE_IDS.SLEEVE):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.UNDERSHIRT_COLOR)
-            elif (i is PIECE_IDS.SHIRT or i is PIECE_IDS.ACCESSORIES_1 or i is PIECE_IDS.ACCESSORIES_2):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.SHIRT_COLOR)
-            elif (i is PIECE_IDS.PANTS):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.PANTS_COLOR)
-            elif (i is PIECE_IDS.SHOES):
-                img = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=i, color=player.SHOE_COLOR)
-            elif (i is PIECE_IDS.HAIR):
-                img = Palette.fetch_hair(id=player.HAIR, hat=(player.HEAD_SLOT is not None), color=player.HAIR_COLOR)
-            # ARMOR
-            elif (i is PIECE_IDS.SLOT_HEAD and (player.HEAD_SLOT is not None and player.HEAD_SLOT is not -1)):
-                img = Palette.fetch_armor(gender=player.GENDER, id=i, slot=player.HEAD_SLOT)
-            elif (i is PIECE_IDS.SLOT_BODY and (player.BODY_SLOT is not None and player.BODY_SLOT is not -1)):
-                img = Palette.fetch_armor(gender=player.GENDER, id=i, slot=player.BODY_SLOT)
-            elif (i is PIECE_IDS.SLOT_LEGS and (player.LEGS_SLOT is not None and player.LEGS_SLOT is not -1)):
-                img = Palette.fetch_armor(gender=player.GENDER, id=i, slot=player.LEGS_SLOT)
-            elif (i is PIECE_IDS.SLOT_ARMS and (player.BODY_SLOT is not None and player.BODY_SLOT is not -1)):
-                img = Palette.fetch_armor(gender=player.GENDER, id=i, slot=player.BODY_SLOT)
-            # Accessories
-            elif (i is PIECE_IDS.SLOT_HANDON and (player.HAND_ON_SLOT is not None and player.HAND_ON_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.HAND_ON_SLOT)
-            elif (i is PIECE_IDS.SLOT_HANDOFF and (
-                            player.HAND_OFF_SLOT is not None and player.HAND_OFF_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.HAND_OFF_SLOT)
-            elif (i is PIECE_IDS.SLOT_BACK and (player.BACK_SLOT is not None and player.BACK_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.BACK_SLOT)
-            elif (i is PIECE_IDS.SLOT_FRONT and (player.FRONT_SLOT is not None and player.FRONT_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.FRONT_SLOT)
-            elif (i is PIECE_IDS.SLOT_SHOE and (player.SHOE_SLOT is not None and player.SHOE_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.SHOE_SLOT)
-            elif (i is PIECE_IDS.SLOT_WAIST and (player.WAIST_SLOT is not None and player.WAIST_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.WAIST_SLOT)
-            elif (i is PIECE_IDS.SLOT_SHIELD and (player.SHIELD_SLOT is not None and player.SHIELD_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.SHIELD_SLOT)
-            elif (i is PIECE_IDS.SLOT_NECK and (player.NECK_SLOT is not None and player.NECK_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.NECK_SLOT)
-            elif (i is PIECE_IDS.SLOT_FACE and (player.FACE_SLOT is not None and player.FACE_SLOT is not -1)):
-                img = Palette.fetch_accessory(id=i, slot=player.FACE_SLOT)
-                # elif (i is PIECE_IDS.SLOT_BALLOON and (player.BALLOON_SLOT is not None and player.BALLOON_SLOT is not -1)):
-                # img = Palette.fetch_accessory(id=i, slot=player.BALLOON_SLOT)
-                # elif (i is PIECE_IDS.SLOT_WING and (player.WING_SLOT is not None and player.WING_SLOT is not -1)):
-                # img = Palette.fetch_accessory(id=i, slot=player.WING_SLOT)
-            PIECES[i] = img
-        return PIECES
+    def draw_player(player):
+        player_img = Image.new('RGBA', (40, 55), (0, 0, 0, 0))
+        hands = None
+        headpieceBeforeHair = None
+        alternativeHairs = None
+        sleeves = None
+
+        # Here we draw the head-piece before the hair
+        if player.HEAD_SLOT is 10 or player.HEAD_SLOT is 12 or player.HEAD_SLOT is 28 or player.HEAD_SLOT is 62 or\
+            player.HEAD_SLOT is 97 or player.HEAD_SLOT is 106 or player.HEAD_SLOT is 113 or player.HEAD_SLOT is 116 or\
+            player.HEAD_SLOT is 119 or player.HEAD_SLOT is 133 or player.HEAD_SLOT is 138 or player.HEAD_SLOT is 139 or\
+            player.HEAD_SLOT is 163 or player.HEAD_SLOT is 178 or player.HEAD_SLOT is 181 or player.HEAD_SLOT is 191 or\
+                player.HEAD_SLOT is 198:
+            headpieceBeforeHair = True
+        if player.HEAD_SLOT is 161 or player.HEAD_SLOT is 14 or player.HEAD_SLOT is 15 or player.HEAD_SLOT is 16 or\
+            player.HEAD_SLOT is 18 or player.HEAD_SLOT is 21 or player.HEAD_SLOT is 24 or player.HEAD_SLOT is 25 or\
+            player.HEAD_SLOT is 26 or player.HEAD_SLOT is 40 or player.HEAD_SLOT is 44 or player.HEAD_SLOT is 51 or\
+            player.HEAD_SLOT is 56 or player.HEAD_SLOT is 59 or player.HEAD_SLOT is 60 or player.HEAD_SLOT is 67 or\
+            player.HEAD_SLOT is 68 or player.HEAD_SLOT is 69 or player.HEAD_SLOT is 114 or player.HEAD_SLOT is 121 or\
+            player.HEAD_SLOT is 126 or player.HEAD_SLOT is 130 or player.HEAD_SLOT is 136 or player.HEAD_SLOT is 140 or\
+            player.HEAD_SLOT is 145 or player.HEAD_SLOT is 158 or player.HEAD_SLOT is 159 or player.HEAD_SLOT is 184 or\
+                player.HEAD_SLOT is 190 or player.HEAD_SLOT is 92 or player.HEAD_SLOT is 195:
+            alternativeHairs = True
+
+        # __BODY STUFF __
+        # let me see those hands
+        if player.BODY_SLOT is 77 or player.BODY_SLOT is 103 or player.BODY_SLOT is 41 or player.BODY_SLOT is 100 or\
+            player.BODY_SLOT is 10 or player.BODY_SLOT is 11 or player.BODY_SLOT is 12 or player.BODY_SLOT is 13 or\
+            player.BODY_SLOT is 14 or player.BODY_SLOT is 43 or player.BODY_SLOT is 15 or player.BODY_SLOT is 16 or\
+            player.BODY_SLOT is 20 or player.BODY_SLOT is 39 or player.BODY_SLOT is 50 or player.BODY_SLOT is 38 or\
+            player.BODY_SLOT is 40 or player.BODY_SLOT is 57 or player.BODY_SLOT is 44 or player.BODY_SLOT is 52 or\
+            player.BODY_SLOT is 53 or player.BODY_SLOT is 68 or player.BODY_SLOT is 81 or player.BODY_SLOT is 85 or\
+            player.BODY_SLOT is 88 or player.BODY_SLOT is 98 or player.BODY_SLOT is 86 or player.BODY_SLOT is 87 or\
+            player.BODY_SLOT is 99 or player.BODY_SLOT is 165 or player.BODY_SLOT is 166 or player.BODY_SLOT is 167 or\
+            player.BODY_SLOT is 171 or player.BODY_SLOT is 45 or player.BODY_SLOT is 168 or player.BODY_SLOT is 169 or\
+            player.BODY_SLOT is 42 or player.BODY_SLOT is 180 or player.BODY_SLOT is 181 or player.BODY_SLOT is 183 or\
+            player.BODY_SLOT is 186 or player.BODY_SLOT is 187 or player.BODY_SLOT is 188 or player.BODY_SLOT is 64 or\
+            player.BODY_SLOT is 189 or player.BODY_SLOT is 191 or player.BODY_SLOT is 192 or player.BODY_SLOT is 198 or\
+                player.BODY_SLOT is 199 or player.BODY_SLOT is 202 or player.BODY_SLOT is 203:
+            hands = True # draw 5
+        # let me see those shoulders
+        if player.BODY_SLOT is 99 or player.BODY_SLOT is 98 or player.BODY_SLOT is 100 or player.BODY_SLOT is 167 or\
+            player.BODY_SLOT is 171 or player.BODY_SLOT is 183 or player.BODY_SLOT is 191 or player.BODY_SLOT is 192 or\
+            player.BODY_SLOT is 198 or player.BODY_SLOT is 199 or player.BODY_SLOT is 202 or player.BODY_SLOT is 201 or\
+                player.BODY_SLOT is 203:
+            sleeves = True # draw 7
+
+        # we need to draw backs
+        if player.BACK_SLOT < 14 and player.BACK_SLOT > 0:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_BACK, slot=player.BACK_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        # we need to draw body
+        if player.BODY_SLOT not in [83, 82, 93]:
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.FULL_BOD, color=player.SKIN_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+            # we need to draw legs
+            if player.LEGS_SLOT is not 67 and player.LEGS_SLOT is not 106\
+                    and (player.LEGS_SLOT is not 140 and player.LEGS_SLOT is not 138)\
+                    and (player.SHOE_SLOT is not 15 and player.LEGS_SLOT is not 143):
+                tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.LEGS, color=player.SKIN_COLOR)
+                player_img.paste(im=tempImg, mask=tempImg)
+
+        # line 25918
+        # do we have leg armor?
+        if 0 < player.LEGS_SLOT < 157:
+            tempImg = Palette.fetch_armor(gender=player.GENDER, id=PIECE_IDS.SLOT_LEGS, slot=player.LEGS_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        else:
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.PANTS, color=player.PANTS_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.SHOES, color=player.SHOE_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+        # draw shoes
+        if 0 < player.SHOE_SLOT < 18:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_SHOE, slot=player.SHOE_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        # draw 14
+        if player.SKIN_VARIANT in [3, 9, 7] and (player.BODY_SLOT < 1 or player.BODY_SLOT > 207 or player.BODY_SLOT is None):
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_2, color=player.SHOE_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        # we need to draw body armor
+        if 0 < player.BODY_SLOT < 208:
+            tempImg = Palette.fetch_armor(gender=player.GENDER,id=PIECE_IDS.SLOT_BODY, slot=player.BODY_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+            if hands is True:
+                tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.HANDS, color=player.SKIN_COLOR)
+                player_img.paste(im=tempImg, mask=tempImg)
+        else:
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.UNDERSHIRT, color=player.UNDERSHIRT_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.SHIRT, color=player.SHIRT_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.HANDS, color=player.SKIN_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if 0 < player.HAND_OFF_SLOT < 12:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_HANDOFF, slot=player.HAND_OFF_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        if 0 < player.WAIST_SLOT < 13:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_WAIST, slot=player.WAIST_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        if 0 < player.NECK_SLOT < 10:
+            tempImg - Palette.fetch_accessory(id=PIECE_IDS.SLOT_NECK, slot=player.NECK_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        # __ HEAD STUFF __
+        # if we're not wearing space creature mask or werewolf or something crazy
+        if player.HEAD_SLOT is not 38 and player.HEAD_SLOT is not 135:
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.HEAD, color=player.SKIN_COLOR)
+            player_img.paste(im= tempImg, mask=tempImg)
+
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.EYE_WHITES)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.EYES, color=player.EYE_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if headpieceBeforeHair is True:
+            tempImg = Palette.fetch_armor(gender=player.GENDER, id=PIECE_IDS.SLOT_HEAD, slot=player.HEAD_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+            tempImg = Palette.fetch_hair(id=player.HAIR, color=player.HAIR_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+        elif alternativeHairs is True:
+            tempImg = Palette.fetch_hair(id=player.HAIR, color=player.HAIR_COLOR, hat=alternativeHairs)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if player.HEAD_SLOT is 23:
+            tempImg = Palette.fetch_hair(id=player.HAIR, color=player.HAIR_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+            tempImg = Palette.fetch_armor(gender=player.GENDER, id=PIECE_IDS.SLOT_HEAD, slot=player.HEAD_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        elif (0 < player.HEAD_SLOT < 214) and player.HEAD_SLOT not in [28, 38, 39]:
+            tempImg = Palette.fetch_armor(gender=player.GENDER, id=PIECE_IDS.SLOT_HEAD, slot=player.HEAD_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        elif player.FACE_SLOT not in [2, 3, 4]:
+            tempImg = Palette.fetch_hair(id=player.HAIR, color=player.HAIR_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if 0 < player.FACE_SLOT < 9:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_FACE, slot=player.FACE_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+        if 0 < player.SHIELD_SLOT < 7:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_SHIELD, slot=player.SHIELD_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        # now we draw armor arms
+        if 0 < player.BODY_SLOT < 208:
+            if player.BODY_SLOT not in [21, 22]:
+                if hands is True:
+                    if sleeves is True:
+                        tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.FULL_ARM, color=player.SKIN_COLOR)
+                        player_img.paste(im=tempImg, mask=tempImg)
+                    tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ONE_HAND, color=player.SKIN_COLOR)
+                    player_img.paste(im=tempImg, mask=tempImg)
+                tempImg = Palette.fetch_armor(gender=player.GENDER, id=PIECE_IDS.SLOT_ARMS, slot=player.BODY_SLOT)
+                player_img.paste(im=tempImg, mask=tempImg)
+        else:
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.FULL_ARM, color=player.SKIN_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.SLEEVE, color=player.SKIN_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_1, color=player.SKIN_COLOR)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if 0 < player.HAND_ON_SLOT < 20:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_HANDON, slot=player.HAND_ON_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        if 0 < player.FRONT_SLOT < 5:
+            tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_FRONT, slot=player.FRONT_SLOT)
+            player_img.paste(im=tempImg, mask=tempImg)
+
+        return player_img
+
 
     @staticmethod
-    def _fetch_piece(skin_variant, id):
+    def fetch_piece(skin_variant, id, color=None):
         # lets see if the skinvar has an image
         try:
             img = Image.open("data/Player/{0}/{1}.png".format(skin_variant, id)).crop(CLIP_RECT)
@@ -125,16 +249,12 @@ class Palette:
                     if (id != PIECE_IDS.ACCESSORIES_1 and id != PIECE_IDS.ACCESSORIES_2):
                         flask_app.app.logger.warning('IOError _fetch_piece(%d : %d)', skin_variant, id)
                     return None
-        return img
+        return  img if color is None else Palette.color_image(img=img, color=color)
 
     @staticmethod
-    def fetch_piece(skin_variant, id, color):
-        return Palette.color_image(img=Palette._fetch_piece(skin_variant, id), color=color)
-
-    @staticmethod
-    def fetch_hair(id, hat, color):
+    def fetch_hair(id, color, hat=None):
         try:
-            path = "data/Player/Hair{0}/{1}.png".format("Alt" if hat else "", (id + 1))
+            path = "data/Player/Hair{0}/{1}.png".format("" if hat is None else "Alt", (id + 1))
             hair = Image.open(path).crop(CLIP_RECT)
             hair = Palette.color_image(hair, color)
         except IOError:

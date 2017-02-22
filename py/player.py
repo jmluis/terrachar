@@ -13,27 +13,24 @@ class Player:
     NAME = "NULL"
     SKIN_VARIANT = 0
     PALETTE = 0
-    HEAD_SLOT = None
-    BODY_SLOT = None
-    LEGS_SLOT = None
-    HAND_ON_SLOT = None
-    HAND_OFF_SLOT = None
-    BACK_SLOT = None
-    FRONT_SLOT = None
-    SHOE_SLOT = None
-    WAIST_SLOT = None
-    WING_SLOT = None
-    SHIELD_SLOT = None
-    NECK_SLOT = None
-    FACE_SLOT = None
-    BALLOON_SLOT = None
+    HEAD_SLOT = -1
+    BODY_SLOT = -1
+    LEGS_SLOT = -1
+    HAND_ON_SLOT = -1
+    HAND_OFF_SLOT = -1
+    BACK_SLOT = -1
+    FRONT_SLOT = -1
+    SHOE_SLOT = -1
+    WAIST_SLOT = -1
+    WING_SLOT = -1
+    SHIELD_SLOT = -1
+    NECK_SLOT = -1
+    FACE_SLOT = -1
+    BALLOON_SLOT = -1
 
     @property
     def GENDER(self):
-        return (self.SKIN_VARIANT > 3 and self.SKIN_VARIANT is not 8)
-
-    def load_palette(self):
-        self.PALETTE = Palette.load_pieces(self)
+        return self.SKIN_VARIANT > 3 and self.SKIN_VARIANT is not 8
 
     def load_data(self, parsed):
         self.EYE_COLOR = [int(x) for x in parsed['EyeColor']]
@@ -76,4 +73,3 @@ class Player:
             self.BALLOON_SLOT = int(parsed['BalloonSlot'])
 
         self.NAME = parsed['Name']
-        self.load_palette()

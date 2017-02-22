@@ -10,7 +10,6 @@ import flask_app
 
 BASE_REST = "http://localhost:7878/cterrachar/"
 
-
 cache = SimpleCache()
 
 
@@ -66,11 +65,6 @@ def to_base64(img):
     b64 = base64.b64encode(imgio.getvalue())
     return b64
 
-
 def draw_character(player):
-    image = Image.new('RGBA', (40, 55), (0, 0, 0, 0))
-    for piece in player.PALETTE:
-        if piece is None:
-            continue
-        image.paste(im=piece, mask=piece)
-    return image
+    from palette import Palette
+    return Palette.draw_player(player)
