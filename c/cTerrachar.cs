@@ -135,41 +135,43 @@ namespace cTerrachar
                 item = new Item();
                 item.SetDefaults(parsed.NetId);
                 // Head
-                if ((i == 59 || i == 69) && item.headSlot > 0)
-                    relevantPlr.HeadSlot = item.headSlot;
+                if ((i == 59 || i == 69) && item.headSlot >= 0)
+                    relevantPlr.HeadSlot = (item.headSlot == 0) ? (int?)null : item.headSlot;
                 // Body
-                else if ((i == 60 || i == 70) && item.bodySlot > 0)
-                    relevantPlr.BodySlot = item.bodySlot;
+                else if ((i == 60 || i == 70) && item.bodySlot >= 0)
+                    relevantPlr.BodySlot = (item.bodySlot == 0) ? (int?)null : item.bodySlot;
                 // Legs
-                else if ((i == 61 || i == 71) && item.legSlot > 0)
-                    relevantPlr.LegsSlot = item.legSlot;
+                else if ((i == 61 || i == 71) && item.legSlot >= 0)
+                    relevantPlr.LegsSlot = (item.legSlot == 0) ? (int?)null : item.legSlot;
                 // Accessories
-                else if (((i >= 62 && i <= 68) && !hiddens[not_weird]) || i >= 72 && i <= 78)
+                else if (((i >= 62 && i <= 67) && !hiddens[not_weird]) || i >= 72 && i <= 77)
                 {
-                    if (item.handOnSlot > 0)
+                    if (item.handOnSlot >= 0)
                         relevantPlr.HandsOnSlot = item.handOnSlot;
-                    else if (item.handOffSlot > 0)
+                   if (item.handOffSlot >= 0)
                         relevantPlr.HandsOffSlot = item.handOffSlot;
-                    else if (item.backSlot > 0)
+
+
+                    if (item.backSlot >= 0)
                     {
                         relevantPlr.BackSlot = item.backSlot;
                         relevantPlr.FrontSlot = null;
                     }
-                    else if (item.frontSlot > 0)
+                    if (item.frontSlot > 0)
                         relevantPlr.FrontSlot = item.frontSlot;
-                    else if (item.shoeSlot > 0)
+                    if (item.shoeSlot > 0)
                         relevantPlr.ShoeSlot = item.shoeSlot;
-                    else if (item.waistSlot > 0)
+                    if (item.waistSlot > 0)
                         relevantPlr.WaistSlot = item.waistSlot;
-                    else if (item.wingSlot > 0)
+                    if (item.wingSlot > 0)
                         relevantPlr.WingSlot = item.wingSlot;
-                    else if (item.shieldSlot > 0)
+                    if (item.shieldSlot > 0)
                         relevantPlr.ShieldSlot = item.shieldSlot;
-                    else if (item.neckSlot > 0)
+                    if (item.neckSlot > 0)
                         relevantPlr.NeckSlot = item.neckSlot;
-                    else if (item.faceSlot > 0)
+                    if (item.faceSlot > 0)
                         relevantPlr.FaceSlot = item.faceSlot;
-                    else if (item.balloonSlot > 0)
+                    if (item.balloonSlot > 0)
                         relevantPlr.BalloonSlot = item.balloonSlot;
                 }
             }
@@ -194,9 +196,9 @@ namespace cTerrachar
                 relevantPlr.FrontSlot = null;
             }
 
-            if (relevantPlr.HeadSlot.HasValue)
+            if (relevantPlr.HeadSlot.HasValue && relevantPlr.HeadSlot != 0)
             {
-                relevantPlr.FaceSlot = relevantPlr.FaceSlot.Value == 7 ? 7 : (int?)null;
+                relevantPlr.FaceSlot = relevantPlr.FaceSlot.HasValue ? ((relevantPlr.FaceSlot == 7) ? 7 : (int?)null) : (int?)null;
             }
 
             return relevantPlr;
