@@ -54,8 +54,6 @@ class Palette:
             x, y = img.size
             width, height = player.size
             box = ((width-x)/2, (height-y)/2, (width+x)/2, (height+y)/2)
-        else:
-            print 'BOX IS NOT NONE'
         player.paste(im=img, box=box, mask=img)
 
     @staticmethod
@@ -67,9 +65,19 @@ class Palette:
             tempImg = Palette.fetch_accessory(id=PIECE_IDS.SLOT_WING, slot=player.WING_SLOT)
             if tempImg is not None:
                 x, y = tempImg.size
+                x_off = 0
+                y_off = 0
 
-                box = ((width - x) / 2 - 10, (height - y) / 2 + 3, (width + x) / 2 - 10, (height + y) / 2 + 3)
+                if player.WING_SLOT is 27:
+                    x_off = 4
+                elif player.WING_SLOT is 5:
+                    y_off = -4
+                    x_off = 4
 
+                box = ((width - x) / 2 - 9 + x_off,  # Left
+                       (height - y) / 2 + 2 + y_off, # Upper
+                       (width + x) / 2 - 9 + x_off,  # Right
+                       (height + y) / 2 + 2 + y_off) # Lower
                 Palette.paste_img(player=player_img, box=box, img=tempImg)
 
         hands = None
@@ -151,7 +159,7 @@ class Palette:
             Palette.paste_img(player=player_img, img=tempImg)
         # draw 14
         if player.SKIN_VARIANT in [3, 9, 7] and (player.BODY_SLOT < 1 or player.BODY_SLOT > 207 or player.BODY_SLOT is None):
-            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_2, color=player.SHOE_COLOR)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_2, color=player.SHIRT_COLOR)
             Palette.paste_img(player=player_img, img=tempImg)
 
         # we need to draw body armor
@@ -235,9 +243,9 @@ class Palette:
         else:
             tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.FULL_ARM, color=player.SKIN_COLOR)
             Palette.paste_img(player=player_img, img=tempImg)
-            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.SLEEVE, color=player.SKIN_COLOR)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.SLEEVE, color=player.SHIRT_COLOR)
             Palette.paste_img(player=player_img, img=tempImg)
-            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_1, color=player.SKIN_COLOR)
+            tempImg = Palette.fetch_piece(skin_variant=player.SKIN_VARIANT, id=PIECE_IDS.ACCESSORIES_1, color=player.SHIRT_COLOR)
             Palette.paste_img(player=player_img, img=tempImg)
 
         if 0 < player.HAND_ON_SLOT < 20:
@@ -326,13 +334,11 @@ class Palette:
                 acc = Image.open("data/Acc/Face/{0}.png".format(slot)).crop(CLIP_RECT)
                 # elif id is PIECE_IDS.SLOT_BALLOON: # no
                 # acc = Image.open("data/Acc/Balloon/{0}.png".format(slot)).crop((0,0,52,56)? [TODO])
-            elif id is PIECE_IDS.SLOT_WING and slot is not 33:
+            elif id is PIECE_IDS.SLOT_WING:
                 temp = Image.open("data/Wings/{0}.png".format(slot))
                 width, height = temp.size
-                if slot is 22: # weird scooter surfboard needs a lot of thinking
-                    crop_rect = ()
-                elif slot is 34: # weird one too lots of frames or somethign
-                    crop_rect = (0, 0, width, height / 6)
+                if slot in [22, 28, 33, 34]: # {Hoverboard, Jimm's Wings, Lazure's Wings} : Only shows on Y movement
+                    return None
                 else:
                     crop_rect = (0, 0, width, height / 4)
                 acc = temp.crop(crop_rect)

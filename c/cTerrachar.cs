@@ -79,7 +79,7 @@ namespace cTerrachar
             relevantPlr.LegsSlot = player.legs < 1 ? (int?)null : player.legs;
             relevantPlr.HandsOnSlot = player.handon < 1 ? (int?)null : player.handon;
             relevantPlr.HandsOffSlot = player.handoff < 1 ? (int?)null : player.handoff;
-            relevantPlr.BackSlot = player.back < 1 ? (int?)null : player.head;
+            relevantPlr.BackSlot = player.back < 1 ? (int?)null : player.back;
             relevantPlr.FrontSlot = player.front < 1 ? (int?)null : player.front;
             relevantPlr.ShoeSlot = player.shoe < 1 ? (int?)null : player.shoe;
             relevantPlr.WaistSlot = player.waist < 1 ? (int?)null : player.waist;
@@ -115,6 +115,8 @@ namespace cTerrachar
             relevantPlr.SkinVariant = reader.Get<Int32>("skinvariant");
             relevantPlr.Hair = reader.Get<Int32>("hair");
 
+            bool extraSlot = reader.Get<Boolean>("extraSlot");
+
             for (int i = 0; i < 20; i++)
                 if (i < 10)
                     hiddens[i] = (reader.Get<Int32>("hideVisuals") & 1 << i) != 0;
@@ -132,6 +134,9 @@ namespace cTerrachar
                 parsed = NetItem.Parse(inventory_entries[i]);
                 if (parsed.NetId < 1)
                     continue;
+                if (extraSlot && (not_weird == 8 || not_weird == 18)) // lets skip the extra slots
+                    continue;
+
                 item = new Item();
                 item.SetDefaults(parsed.NetId);
                 // Head
